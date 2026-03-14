@@ -1,327 +1,23 @@
-import React, { useState, useMemo } from 'react';
-import { 
-  Cpu, Factory, GraduationCap, X, 
-  Target, Shield, BarChart3, BrainCircuit, Globe, Info,
-  LayoutGrid, Users
-} from 'lucide-react';
-
-const LOGO_URL = "https://image.admisiones.tec.mx/lib/fe2b11747364057f721176/m/1/b910ad21-1913-4ce0-8f35-38c908814125.png";
-
-// Mapping for consistent terminology across the app
-const categoryToRole = {
-  'TI': 'Arquitecto',
-  'Industria': 'Visionario',
-  'Academia': 'Estratega'
-};
-
-const clusters = [
-  {
-    id: 1,
-    title: "Agilidad Estratégica",
-    categories: ["Industria", "Academia"],
-    icon: <Target className="w-6 h-6" />,
-    description: "La planeación estática ha muerto en favor de la reinvención continua.",
-    rules: [
-      { cat: "Industria", text: "La planeación estratégica dejó de ser anual: ahora la estrategia se reinventa continuamente con IA y datos." },
-      { cat: "Academia", text: "El plan financiero fijo dejó de existir: hoy las decisiones se recalibran continuamente con analítica." },
-      { cat: "Academia", text: "La estrategia dejó de ser un documento: ahora es un proceso continuo de aprendizaje." }
-    ]
-  },
-  {
-    id: 2,
-    title: "Sistemas Inteligentes",
-    categories: ["TI"],
-    icon: <BrainCircuit className="w-6 h-6" />,
-    description: "La eficiencia operativa ahora reside en el diseño de arquitecturas autónomas.",
-    rules: [
-      { cat: "TI", text: "La eficiencia ya no depende de más infraestructura física, sino de rediseñar procesos con datos y automatización." },
-      { cat: "TI", text: "La industria ya no se optimiza solo con maquinaria, sino con sistemas inteligentes conectados." },
-      { cat: "TI", text: "La eficiencia operativa ya no se logra solo optimizando procesos humanos, sino diseñando sistemas inteligentes." }
-    ]
-  },
-  {
-    id: 3,
-    title: "Cultura de Aprendizaje",
-    categories: ["Academia"],
-    icon: <GraduationCap className="w-6 h-6" />,
-    description: "El liderazgo se define por la curiosidad y la velocidad de aprendizaje.",
-    rules: [
-      { cat: "Academia", text: "La jerarquía dejó de definir el liderazgo; la velocidad de aprendizaje del equipo sí." },
-      { cat: "Academia", text: "El liderazgo ya no consiste en tener respuestas, sino en formular mejores preguntas con datos." },
-      { cat: "Academia", text: "La ventaja del MBA ya no es solo el conocimiento, sino la capacidad de interpretar datos y actuar rápido." }
-    ]
-  },
-  {
-    id: 4,
-    title: "Confianza y Seguridad",
-    categories: ["TI", "Industria"],
-    icon: <Shield className="w-6 h-6" />,
-    description: "Transición de la supervisión humana a la verificación algorítmica.",
-    rules: [
-      { cat: "TI", text: "La confianza digital ya no depende de supervisión humana, sino de arquitecturas verificables y trazables." },
-      { cat: "Industria", text: "La ciberseguridad perimetral murió: ahora todo se diseña bajo el principio de confianza cero." }
-    ]
-  },
-  {
-    id: 5,
-    title: "Innovación en Tiempo Real",
-    categories: ["Academia", "Industria"],
-    icon: <Globe className="w-6 h-6" />,
-    description: "Experimentación constante como única ventaja competitiva.",
-    rules: [
-      { cat: "Academia", text: "La ventaja competitiva ya no está en el tamaño de la empresa, sino en la velocidad para experimentar." },
-      { cat: "Academia", text: "Innovar ya no es lanzar grandes proyectos; es experimentar rápido y aprender antes que otros." },
-      { cat: "Academia", text: "Emprender ya no significa tener todas las respuestas, sino aprender del mercado en tiempo real." }
-    ]
-  },
-  {
-    id: 6,
-    title: "Inteligencia de Datos",
-    categories: ["Industria", "Academia"],
-    icon: <BarChart3 className="w-6 h-6" />,
-    description: "La democratización del análisis borra la intuición como guía.",
-    rules: [
-      { cat: "Industria", text: "Los reportes humanos ya no son el centro de las decisiones; hoy la IA genera insights en tiempo real." },
-      { cat: "Industria", text: "La intuición dejó de guiar las decisiones financieras; los modelos de datos ahora marcan el rumbo." },
-      { cat: "Industria", text: "El conocimiento dejó de ser escaso: la IA democratizó la capacidad de analizar y crear." },
-      { cat: "Academia", text: "Las marcas ya no controlan la narrativa del mercado: los algoritmos y las comunidades digitales lo hacen." }
-    ]
-  },
-  {
-    id: 7,
-    title: "Tecnología como Núcleo",
-    categories: ["TI", "Industria"],
-    icon: <Cpu className="w-6 h-6" />,
-    description: "La tecnología deja de ser soporte para convertirse en el corazón del negocio.",
-    rules: [
-      { cat: "Industria", text: "La tecnología borró la idea de que la estrategia tecnológica es soporte; ahora es el núcleo del negocio." },
-      { cat: "TI", text: "La innovación en salud ya no depende solo de laboratorios físicos, sino de plataformas de datos y algoritmos." }
-    ]
-  }
-];
-
-const App = () => {
-  const [selectedCluster, setSelectedCluster] = useState(null);
-  const [viewMode, setViewMode] = useState('global');
-  const [activeProfile, setActiveProfile] = useState('Arquitecto');
-
-  const profileMap = {
-    'Arquitecto': 'TI',
-    'Visionario': 'Industria',
-    'Estratega': 'Academia'
-  };
-
-  const displayedClusters = useMemo(() => {
-    if (viewMode === 'global') return clusters;
-    return clusters.filter(c => c.categories.includes(profileMap[activeProfile]));
-  }, [viewMode, activeProfile]);
-
-  const nodePositions = useMemo(() => {
-    const grid = [
-      { top: 25, left: 20 }, { top: 20, left: 50 }, { top: 25, left: 80 },
-      { top: 50, left: 30 }, { top: 45, left: 70 },
-      { top: 75, left: 20 }, { top: 80, left: 50 }
-    ];
-    
-    return clusters.map((_, i) => ({
-      top: `${grid[i % grid.length].top}%`,
-      left: `${grid[i % grid.length].left}%`,
-      delay: `${i * 0.4}s`,
-      duration: `${15 + (i % 3) * 5}s`,
-    }));
-  }, [displayedClusters]);
-
-  const getCategoryColor = (cat) => {
-    if (cat === "TI") return "bg-blue-500";
-    if (cat === "Industria") return "bg-orange-500";
-    if (cat === "Academia") return "bg-green-500";
-    return "bg-gray-400";
-  };
-
-  return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans overflow-hidden flex flex-col">
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03]">
-        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(#000 1.5px, transparent 1.5px)', backgroundSize: '40px 40px' }}></div>
-      </div>
-
-      <header className="relative z-30 px-8 py-5 flex flex-col md:flex-row justify-between items-center bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
-        <div className="flex items-center gap-6">
-          <img src={LOGO_URL} alt="Tec de Monterrey" className="h-10 w-auto" />
-          <div className="h-8 w-px bg-slate-200 hidden md:block"></div>
-          <div>
-            <h1 className="text-xl font-black tracking-tight text-slate-800 uppercase leading-none">
-              Muro de las Ideas Rotas
-            </h1>
-            <p className="text-[9px] text-slate-400 font-bold tracking-[0.2em] mt-1 italic uppercase">Análisis de Reglas Obsoletas</p>
-          </div>
-        </div>
-
-        <div className="flex bg-slate-100 p-1 rounded-xl mt-4 md:mt-0 border border-slate-200">
-          <button 
-            onClick={() => setViewMode('global')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'global' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <LayoutGrid size={14} /> Vista Global
-          </button>
-          <button 
-            onClick={() => setViewMode('per-profile')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'per-profile' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <Users size={14} /> Por Perfil
-          </button>
-        </div>
-      </header>
-
-      {viewMode === 'per-profile' && (
-        <div className="relative z-20 flex justify-center gap-4 py-4 bg-slate-50/50 border-b border-slate-100 animate-in slide-in-from-top duration-300">
-          {Object.keys(profileMap).map(profile => (
-            <button
-              key={profile}
-              onClick={() => setActiveProfile(profile)}
-              className={`px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all border-2 ${
-                activeProfile === profile 
-                ? `${profile === 'Arquitecto' ? 'border-blue-500 bg-blue-500 text-white' : profile === 'Visionario' ? 'border-orange-500 bg-orange-500 text-white' : 'border-green-500 bg-green-500 text-white'} shadow-lg` 
-                : 'border-slate-200 bg-white text-slate-400 hover:border-slate-300'
-              }`}
-            >
-              {profile}
-            </button>
-          ))}
-        </div>
-      )}
-
-      <main className="relative flex-grow flex items-center justify-center p-4">
-        <div className="relative w-full h-[60vh] max-w-7xl">
-          {displayedClusters.length > 0 ? displayedClusters.map((cluster, idx) => (
-            <div
-              key={cluster.id}
-              onClick={() => setSelectedCluster(cluster)}
-              style={{
-                top: nodePositions[idx].top,
-                left: nodePositions[idx].left,
-                animation: `float-clean ${nodePositions[idx].duration} ease-in-out infinite alternate`,
-                animationDelay: nodePositions[idx].delay,
-              }}
-              className="absolute group cursor-pointer transition-all duration-500 z-10 -translate-x-1/2 -translate-y-1/2"
-            >
-              <div className="relative flex flex-col items-center">
-                <div className="relative p-1.5 rounded-full bg-white shadow-[0_15px_35px_rgba(0,0,0,0.06)] border border-slate-100 group-hover:scale-110 group-hover:border-blue-300 transition-all duration-500">
-                  <div className="flex gap-0.5 absolute -top-1 -right-1">
-                    {cluster.categories.map(cat => (
-                      <div key={cat} className={`w-3.5 h-3.5 rounded-full border-2 border-white ${getCategoryColor(cat)} shadow-sm`}></div>
-                    ))}
-                  </div>
-                  <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-blue-600 transition-colors">
-                    {React.cloneElement(cluster.icon, { size: 32 })}
-                  </div>
-                </div>
-                
-                <div className="mt-5 px-6 py-2.5 bg-white/95 backdrop-blur-sm border border-slate-100 rounded-2xl shadow-xl text-sm font-black text-slate-800 whitespace-nowrap group-hover:bg-slate-900 group-hover:text-white transition-all transform group-hover:-translate-y-2 uppercase tracking-tight">
-                  {cluster.title}
-                </div>
-              </div>
-            </div>
-          )) : (
-            <div className="flex flex-col items-center justify-center h-full text-slate-300 uppercase tracking-widest font-black opacity-50">
-               Cargando conceptos...
-            </div>
-          )}
-        </div>
-      </main>
-
-      <footer className="relative z-20 bg-white border-t border-slate-100 px-8 py-6 shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3 text-slate-300">
-            <Info size={16} />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Referencia de Perfiles</span>
-          </div>
-          <div className="flex flex-wrap justify-center gap-10">
-            <div className="flex items-center gap-3">
-              <span className="w-10 h-2 bg-blue-500 rounded-full shadow-sm"></span>
-              <span className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">Arquitecto</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="w-10 h-2 bg-orange-500 rounded-full shadow-sm"></span>
-              <span className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">Visionario</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="w-10 h-2 bg-green-500 rounded-full shadow-sm"></span>
-              <span className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">Estratega</span>
-            </div>
-          </div>
-          <div className="text-[9px] text-slate-400 font-bold opacity-75">TEC DE MONTERREY</div>
-        </div>
-      </footer>
-
-      {selectedCluster && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
-            <button 
-              onClick={() => setSelectedCluster(null)}
-              className="absolute top-6 right-6 p-2 text-slate-300 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all"
-            >
-              <X size={24} />
-            </button>
-
-            <div className="p-10 flex-grow overflow-y-auto">
-              <div className="flex items-center gap-6 mb-8">
-                <div className="p-5 bg-slate-50 rounded-3xl text-slate-800 shadow-sm border border-slate-100">
-                  {React.cloneElement(selectedCluster.icon, { size: 40 })}
-                </div>
-                <div>
-                  <div className="flex gap-1.5 mb-2">
-                    {selectedCluster.categories.map(cat => (
-                      <span key={cat} className={`text-[9px] font-black px-3 py-1 rounded-lg text-white uppercase tracking-wider ${getCategoryColor(cat)} shadow-sm`}>
-                        {categoryToRole[cat]}
-                      </span>
-                    ))}
-                  </div>
-                  <h3 className="text-3xl font-black text-slate-900 uppercase tracking-tighter leading-none">{selectedCluster.title}</h3>
-                </div>
-              </div>
-
-              <div className="relative mb-10">
-                <div className="absolute left-0 top-0 w-1 h-full bg-slate-100 rounded-full"></div>
-                <p className="pl-6 text-xl text-slate-500 font-medium leading-relaxed italic">
-                  "{selectedCluster.description}"
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6 border-b border-slate-50 pb-2 uppercase">Reglas de Negocio Desafiadas</h4>
-                {selectedCluster.rules.map((rule, i) => (
-                  <div key={i} className="group p-6 bg-slate-50/50 hover:bg-white border border-slate-100 hover:border-blue-100 rounded-[1.5rem] transition-all hover:shadow-md">
-                    <p className="text-slate-800 font-bold leading-relaxed text-lg">
-                      "{rule.text}"
-                    </p>
-                    <div className="mt-4 flex items-center justify-between">
-                       <div className="flex items-center gap-2">
-                          <div className={`w-2.5 h-2.5 rounded-full ${getCategoryColor(rule.cat)} shadow-sm`}></div>
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{categoryToRole[rule.cat]}</span>
-                       </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-slate-50/80 backdrop-blur-sm p-8 flex justify-end border-t border-slate-100">
-              <button 
-                onClick={() => setSelectedCluster(null)}
-                className="px-12 py-3 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-all hover:shadow-xl active:scale-95"
-              >
-                Cerrar Detalle
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <style>{`
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Muro de las Ideas Rotas</title>
+    <!-- Carga de React y Babel para interpretar JSX en el navegador -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
         @keyframes float-clean {
           0% { transform: translate(-50%, -50%) translate(0, 0); }
           50% { transform: translate(-50%, -50%) translate(15px, -20px); }
           100% { transform: translate(-50%, -50%) translate(-12px, 15px); }
+        }
+        .animate-float {
+            animation: float-clean var(--duration) ease-in-out infinite alternate;
         }
         ::-webkit-scrollbar {
           width: 5px;
@@ -336,9 +32,397 @@ const App = () => {
         ::-webkit-scrollbar-thumb:hover {
           background: #e2e8f0;
         }
-      `}</style>
-    </div>
-  );
-};
+        .custom-grid {
+            background-image: radial-gradient(#000 1.5px, transparent 1.5px);
+            background-size: 40px 40px;
+        }
+    </style>
+</head>
+<body class="bg-white text-slate-900 font-sans overflow-hidden">
+    <div id="root"></div>
 
-export default App;
+    <script type="text/babel">
+        const { useState, useMemo } = React;
+
+        const LOGO_URL = "https://image.admisiones.tec.mx/lib/fe2b11747364057f721176/m/1/b910ad21-1913-4ce0-8f35-38c908814125.png";
+
+        const categoryToRole = {
+          'TI': 'Arquitecto',
+          'Industria': 'Visionario',
+          'Academia': 'Estratega'
+        };
+
+        const clusters = [
+          {
+            id: 1,
+            title: "Agilidad Estratégica",
+            categories: ["Industria", "Academia"],
+            icon: "Target",
+            description: "La planeación estática ha muerto en favor de la reinvención continua.",
+            rules: [
+              { cat: "Industria", text: "La planeación estratégica dejó de ser anual: ahora la estrategia se reinventa continuamente con IA y datos." },
+              { cat: "Academia", text: "El plan financiero fijo dejó de existir: hoy las decisiones se recalibran continuamente con analítica." },
+              { cat: "Academia", text: "La estrategia dejó de ser un documento: ahora es un proceso continuo de aprendizaje." }
+            ]
+          },
+          {
+            id: 2,
+            title: "Sistemas Inteligentes",
+            categories: ["TI"],
+            icon: "Cpu",
+            description: "La eficiencia operativa ahora reside en el diseño de arquitecturas autónomas.",
+            rules: [
+              { cat: "TI", text: "La eficiencia ya no depende de más infraestructura física, sino de rediseñar procesos con datos y automatización." },
+              { cat: "TI", text: "La industria ya no se optimiza solo con maquinaria, sino con sistemas inteligentes conectados." },
+              { cat: "TI", text: "La eficiencia operativa ya no se logra solo optimizando procesos humanos, sino diseñando sistemas inteligentes." }
+            ]
+          },
+          {
+            id: 3,
+            title: "Cultura de Aprendizaje",
+            categories: ["Academia"],
+            icon: "GraduationCap",
+            description: "El liderazgo se define por la curiosidad y la velocidad de aprendizaje.",
+            rules: [
+              { cat: "Academia", text: "La jerarquía dejó de definir el liderazgo; la velocidad de aprendizaje del equipo sí." },
+              { cat: "Academia", text: "El liderazgo ya no consiste en tener respuestas, sino en formular mejores preguntas con datos." },
+              { cat: "Academia", text: "La ventaja del MBA ya no es solo el conocimiento, sino la capacidad de interpretar datos y actuar rápido." }
+            ]
+          },
+          {
+            id: 4,
+            title: "Confianza y Seguridad",
+            categories: ["TI", "Industria"],
+            icon: "Shield",
+            description: "Transición de la supervisión humana a la verificación algorítmica.",
+            rules: [
+              { cat: "TI", text: "La confianza digital ya no depende de supervisión humana, sino de arquitecturas verificables y trazables." },
+              { cat: "Industria", text: "La ciberseguridad perimetral murió: ahora todo se diseña bajo el principio de confianza cero." }
+            ]
+          },
+          {
+            id: 5,
+            title: "Innovación en Tiempo Real",
+            categories: ["Academia", "Industria"],
+            icon: "Globe",
+            description: "Experimentación constante como única ventaja competitiva.",
+            rules: [
+              { cat: "Academia", text: "La ventaja competitiva ya no está en el tamaño de la empresa, sino en la velocidad para experimentar." },
+              { cat: "Academia", text: "Innovar ya no es lanzar grandes proyectos; es experimentar rápido y aprender antes que otros." },
+              { cat: "Academia", text: "Emprender ya no significa tener todas las respuestas, sino aprender del mercado en tiempo real." }
+            ]
+          },
+          {
+            id: 6,
+            title: "Inteligencia de Datos",
+            categories: ["Industria", "Academia"],
+            icon: "BarChart",
+            description: "La democratización del análisis borra la intuición como guía.",
+            rules: [
+              { cat: "Industria", text: "Los reportes humanos ya no son el centro de las decisiones; hoy la IA genera insights en tiempo real." },
+              { cat: "Industria", text: "La intuición dejó de guiar las decisiones financieras; los modelos de datos ahora marcan el rumbo." },
+              { cat: "Industria", text: "El conocimiento dejó de ser escaso: la IA democratizó la capacidad de analizar y crear." },
+              { cat: "Academia", text: "Las marcas ya no controlan la narrativa del mercado: los algoritmos y las comunidades digitales lo hacen." }
+            ]
+          },
+          {
+            id: 7,
+            title: "Tecnología como Núcleo",
+            categories: ["TI", "Industria"],
+            icon: "Activity",
+            description: "La tecnología deja de ser soporte para convertirse en el corazón del negocio.",
+            rules: [
+              { cat: "Industria", text: "La tecnología borró la idea de que la estrategia tecnológica es soporte; ahora es el núcleo del negocio." },
+              { cat: "TI", text: "La innovación en salud ya no depende solo de laboratorios físicos, sino de plataformas de datos y algoritmos." }
+            ]
+          }
+        ];
+
+        // Simple SVG Icons with React Fragments to fix SyntaxErrors
+        const Icon = ({ name, className }) => {
+            const icons = {
+                Target: (
+                    <React.Fragment>
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
+                        <circle cx="12" cy="12" r="6" stroke="currentColor" strokeWidth="2" fill="none"/>
+                        <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                    </React.Fragment>
+                ),
+                Cpu: (
+                    <React.Fragment>
+                        <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/>
+                        <path d="M9 9h6v6H9z" fill="currentColor"/>
+                        <path d="M12 2v2M12 20v2M2 12h2M20 12h2M15 2v2M15 20v2M9 2v2M9 20v2M2 15h2M20 15h2M2 9h2M20 9h2" stroke="currentColor" strokeWidth="2"/>
+                    </React.Fragment>
+                ),
+                GraduationCap: (
+                    <React.Fragment>
+                        <path d="M22 10L12 5 2 10l10 5 10-5z" stroke="currentColor" strokeWidth="2" fill="none"/>
+                        <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5" stroke="currentColor" strokeWidth="2" fill="none"/>
+                        <path d="M20 10v6" stroke="currentColor" strokeWidth="2" fill="none"/>
+                    </React.Fragment>
+                ),
+                Shield: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" strokeWidth="2" fill="none"/>,
+                Globe: (
+                    <React.Fragment>
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
+                        <path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20" stroke="currentColor" strokeWidth="2" fill="none"/>
+                    </React.Fragment>
+                ),
+                BarChart: <path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" strokeWidth="2" fill="none"/>,
+                Activity: <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="currentColor" strokeWidth="2" fill="none"/>,
+                Layout: (
+                    <React.Fragment>
+                        <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/>
+                        <path d="M3 9h18M9 21V9" stroke="currentColor" strokeWidth="2" fill="none"/>
+                    </React.Fragment>
+                ),
+                Users: (
+                    <React.Fragment>
+                        <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" stroke="currentColor" strokeWidth="2" fill="none"/>
+                        <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2" fill="none"/>
+                        <path d="M22 21v-2a4 4 0 00-3-3.87M19 3.13a4 4 0 010 7.75" stroke="currentColor" strokeWidth="2" fill="none"/>
+                    </React.Fragment>
+                ),
+                Info: (
+                    <React.Fragment>
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
+                        <path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" fill="none"/>
+                    </React.Fragment>
+                ),
+                X: (
+                    <React.Fragment>
+                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" fill="none"/>
+                    </React.Fragment>
+                )
+            };
+            return (
+                <svg viewBox="0 0 24 24" className={className} strokeLinecap="round" strokeLinejoin="round">
+                    {icons[name]}
+                </svg>
+            );
+        };
+
+        const App = () => {
+          const [selectedCluster, setSelectedCluster] = useState(null);
+          const [viewMode, setViewMode] = useState('global');
+          const [activeProfile, setActiveProfile] = useState('Arquitecto');
+
+          const profileMap = {
+            'Arquitecto': 'TI',
+            'Visionario': 'Industria',
+            'Estratega': 'Academia'
+          };
+
+          const displayedClusters = useMemo(() => {
+            if (viewMode === 'global') return clusters;
+            return clusters.filter(c => c.categories.includes(profileMap[activeProfile]));
+          }, [viewMode, activeProfile]);
+
+          const nodePositions = useMemo(() => {
+            const grid = [
+              { top: 25, left: 20 }, { top: 20, left: 50 }, { top: 25, left: 80 },
+              { top: 50, left: 30 }, { top: 45, left: 70 },
+              { top: 75, left: 20 }, { top: 80, left: 50 }
+            ];
+            
+            return clusters.map((_, i) => ({
+              top: `${grid[i % grid.length].top}%`,
+              left: `${grid[i % grid.length].left}%`,
+              delay: `${i * 0.4}s`,
+              duration: `${15 + (i % 3) * 5}s`,
+            }));
+          }, [displayedClusters]);
+
+          const getCategoryColor = (cat) => {
+            if (cat === "TI") return "bg-blue-500";
+            if (cat === "Industria") return "bg-orange-500";
+            if (cat === "Academia") return "bg-green-500";
+            return "bg-gray-400";
+          };
+
+          return (
+            <div className="min-h-screen bg-white text-slate-900 font-sans overflow-hidden flex flex-col">
+              <div className="fixed inset-0 pointer-events-none opacity-[0.03] custom-grid"></div>
+
+              <header className="relative z-30 px-8 py-5 flex flex-col md:flex-row justify-between items-center bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
+                <div className="flex items-center gap-6">
+                  <img src={LOGO_URL} alt="Tec de Monterrey" className="h-10 w-auto" />
+                  <div className="h-8 w-px bg-slate-200 hidden md:block"></div>
+                  <div>
+                    <h1 className="text-xl font-black tracking-tight text-slate-800 uppercase leading-none">
+                      Muro de las Ideas Rotas
+                    </h1>
+                    <p className="text-[9px] text-slate-400 font-bold tracking-[0.2em] mt-1 italic uppercase text-center md:text-left">Análisis de Reglas Obsoletas</p>
+                  </div>
+                </div>
+
+                <div className="flex bg-slate-100 p-1 rounded-xl mt-4 md:mt-0 border border-slate-200">
+                  <button 
+                    onClick={() => setViewMode('global')}
+                    className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'global' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-800'}`}
+                  >
+                    <Icon name="Layout" className="w-3.5 h-3.5" /> Vista Global
+                  </button>
+                  <button 
+                    onClick={() => setViewMode('per-profile')}
+                    className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'per-profile' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-800'}`}
+                  >
+                    <Icon name="Users" className="w-3.5 h-3.5" /> Por Perfil
+                  </button>
+                </div>
+              </header>
+
+              {viewMode === 'per-profile' && (
+                <div className="relative z-20 flex justify-center gap-4 py-4 bg-slate-50/50 border-b border-slate-100">
+                  {Object.keys(profileMap).map(profile => (
+                    <button
+                      key={profile}
+                      onClick={() => setActiveProfile(profile)}
+                      className={`px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all border-2 ${
+                        activeProfile === profile 
+                        ? `${profile === 'Arquitecto' ? 'border-blue-500 bg-blue-500 text-white' : profile === 'Visionario' ? 'border-orange-500 bg-orange-500 text-white' : 'border-green-500 bg-green-500 text-white'} shadow-lg` 
+                        : 'border-slate-200 bg-white text-slate-400 hover:border-slate-300'
+                      }`}
+                    >
+                      {profile}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <main className="relative flex-grow flex items-center justify-center p-4">
+                <div className="relative w-full h-[60vh] max-w-7xl">
+                  {displayedClusters.length > 0 ? displayedClusters.map((cluster, idx) => (
+                    <div
+                      key={cluster.id}
+                      onClick={() => setSelectedCluster(cluster)}
+                      style={{
+                        top: nodePositions[idx].top,
+                        left: nodePositions[idx].left,
+                        '--duration': nodePositions[idx].duration,
+                        animationDelay: nodePositions[idx].delay,
+                      }}
+                      className="absolute group cursor-pointer transition-all duration-500 z-10 -translate-x-1/2 -translate-y-1/2 animate-float"
+                    >
+                      <div className="relative flex flex-col items-center">
+                        <div className="relative p-1.5 rounded-full bg-white shadow-[0_15px_35px_rgba(0,0,0,0.06)] border border-slate-100 group-hover:scale-110 group-hover:border-blue-300 transition-all duration-500">
+                          <div className="flex gap-0.5 absolute -top-1 -right-1">
+                            {cluster.categories.map(cat => (
+                              <div key={cat} className={`w-3.5 h-3.5 rounded-full border-2 border-white ${getCategoryColor(cat)} shadow-sm`}></div>
+                            ))}
+                          </div>
+                          <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-blue-600 transition-colors">
+                            <Icon name={cluster.icon} className="w-8 h-8" />
+                          </div>
+                        </div>
+                        
+                        <div className="mt-5 px-6 py-2.5 bg-white/95 backdrop-blur-sm border border-slate-100 rounded-2xl shadow-xl text-sm font-black text-slate-800 whitespace-nowrap group-hover:bg-slate-900 group-hover:text-white transition-all transform group-hover:-translate-y-2 uppercase tracking-tight">
+                          {cluster.title}
+                        </div>
+                      </div>
+                    </div>
+                  )) : (
+                    <div className="flex flex-col items-center justify-center h-full text-slate-300 uppercase tracking-widest font-black opacity-50">
+                       Cargando conceptos...
+                    </div>
+                  )}
+                </div>
+              </main>
+
+              <footer className="relative z-20 bg-white border-t border-slate-100 px-8 py-6 shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-3 text-slate-300">
+                    <Icon name="Info" className="w-4 h-4" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Referencia de Perfiles</span>
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-10">
+                    <div className="flex items-center gap-3">
+                      <span className="w-10 h-2 bg-blue-500 rounded-full shadow-sm"></span>
+                      <span className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">Arquitecto</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="w-10 h-2 bg-orange-500 rounded-full shadow-sm"></span>
+                      <span className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">Visionario</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="w-10 h-2 bg-green-500 rounded-full shadow-sm"></span>
+                      <span className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">Estratega</span>
+                    </div>
+                  </div>
+                  <div className="text-[9px] text-slate-400 font-bold opacity-75">TEC DE MONTERREY</div>
+                </div>
+              </footer>
+
+              {selectedCluster && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
+                  <div className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                    <button 
+                      onClick={() => setSelectedCluster(null)}
+                      className="absolute top-6 right-6 p-2 text-slate-300 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all"
+                    >
+                      <Icon name="X" className="w-6 h-6" />
+                    </button>
+
+                    <div className="p-10 flex-grow overflow-y-auto scroll-container">
+                      <div className="flex items-center gap-6 mb-8">
+                        <div className="p-5 bg-slate-50 rounded-3xl text-slate-800 shadow-sm border border-slate-100">
+                          <Icon name={selectedCluster.icon} className="w-10 h-10" />
+                        </div>
+                        <div>
+                          <div className="flex gap-1.5 mb-2">
+                            {selectedCluster.categories.map(cat => (
+                              <span key={cat} className={`text-[9px] font-black px-3 py-1 rounded-lg text-white uppercase tracking-wider ${getCategoryColor(cat)} shadow-sm`}>
+                                {categoryToRole[cat]}
+                              </span>
+                            ))}
+                          </div>
+                          <h3 className="text-3xl font-black text-slate-900 uppercase tracking-tighter leading-none">{selectedCluster.title}</h3>
+                        </div>
+                      </div>
+
+                      <div className="relative mb-10">
+                        <div className="absolute left-0 top-0 w-1 h-full bg-slate-100 rounded-full"></div>
+                        <p className="pl-6 text-xl text-slate-500 font-medium leading-relaxed italic">
+                          "{selectedCluster.description}"
+                        </p>
+                      </div>
+
+                      <div className="space-y-4">
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6 border-b border-slate-50 pb-2 uppercase text-center md:text-left">Reglas de Negocio Desafiadas</h4>
+                        {selectedCluster.rules.map((rule, i) => (
+                          <div key={i} className="group p-6 bg-slate-50/50 hover:bg-white border border-slate-100 hover:border-blue-100 rounded-[1.5rem] transition-all hover:shadow-md">
+                            <p className="text-slate-800 font-bold leading-relaxed text-lg">
+                              "{rule.text}"
+                            </p>
+                            <div className="mt-4 flex items-center justify-between">
+                               <div className="flex items-center gap-2">
+                                  <div className={`w-2.5 h-2.5 rounded-full ${getCategoryColor(rule.cat)} shadow-sm`}></div>
+                                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{categoryToRole[rule.cat]}</span>
+                               </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50/80 backdrop-blur-sm p-8 flex justify-end border-t border-slate-100">
+                      <button 
+                        onClick={() => setSelectedCluster(null)}
+                        className="px-12 py-3 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-all hover:shadow-xl active:scale-95"
+                      >
+                        Cerrar Detalle
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
