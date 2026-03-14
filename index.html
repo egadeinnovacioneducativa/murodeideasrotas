@@ -1,0 +1,289 @@
+import React, { useState, useMemo } from 'react';
+import { 
+  Cpu, Factory, GraduationCap, X, 
+  Target, Shield, BarChart3, BrainCircuit, Globe, Info
+} from 'lucide-react';
+
+const LOGO_URL = "https://image.admisiones.tec.mx/lib/fe2b11747364057f721176/m/1/b910ad21-1913-4ce0-8f35-38c908814125.png";
+
+const clusters = [
+  {
+    id: 1,
+    title: "Agilidad Estratégica",
+    categories: ["Industria", "Academia"],
+    icon: <Target className="w-6 h-6" />,
+    description: "La planeación estática ha muerto en favor de la reinvención continua.",
+    rules: [
+      { cat: "Industria", text: "La planeación estratégica dejó de ser anual: ahora la estrategia se reinventa continuamente con IA y datos." },
+      { cat: "Academia", text: "El plan financiero fijo dejó de existir: hoy las decisiones se recalibran continuamente con analítica." },
+      { cat: "Academia", text: "La estrategia dejó de ser un documento: ahora es un proceso continuo de aprendizaje." }
+    ]
+  },
+  {
+    id: 2,
+    title: "Sistemas Inteligentes",
+    categories: ["TI"],
+    icon: <BrainCircuit className="w-6 h-6" />,
+    description: "La eficiencia operativa ahora reside en el diseño de arquitecturas autónomas.",
+    rules: [
+      { cat: "TI", text: "La eficiencia ya no depende de más infraestructura física, sino de rediseñar procesos con datos y automatización." },
+      { cat: "TI", text: "La industria ya no se optimiza solo con maquinaria, sino con sistemas inteligentes conectados." },
+      { cat: "TI", text: "La eficiencia operativa ya no se logra solo optimizando procesos humanos, sino diseñando sistemas inteligentes." }
+    ]
+  },
+  {
+    id: 3,
+    title: "Cultura de Aprendizaje",
+    categories: ["Academia"],
+    icon: <GraduationCap className="w-6 h-6" />,
+    description: "El liderazgo se define por la curiosidad y la velocidad de aprendizaje.",
+    rules: [
+      { cat: "Academia", text: "La jerarquía dejó de definir el liderazgo; la velocidad de aprendizaje del equipo sí." },
+      { cat: "Academia", text: "El liderazgo ya no consiste en tener respuestas, sino en formular mejores preguntas con datos." },
+      { cat: "Academia", text: "La ventaja del MBA ya no es solo el conocimiento, sino la capacidad de interpretar datos y actuar rápido." }
+    ]
+  },
+  {
+    id: 4,
+    title: "Confianza y Seguridad",
+    categories: ["TI", "Industria"],
+    icon: <Shield className="w-6 h-6" />,
+    description: "Transición de la supervisión humana a la verificación algorítmica.",
+    rules: [
+      { cat: "TI", text: "La confianza digital ya no depende de supervisión humana, sino de arquitecturas verificables y trazables." },
+      { cat: "Industria", text: "La ciberseguridad perimetral murió: ahora todo se diseña bajo el principio de confianza cero." }
+    ]
+  },
+  {
+    id: 5,
+    title: "Innovación en Tiempo Real",
+    categories: ["Academia", "Industria"],
+    icon: <Globe className="w-6 h-6" />,
+    description: "Experimentación constante como única ventaja competitiva.",
+    rules: [
+      { cat: "Academia", text: "La ventaja competitiva ya no está en el tamaño de la empresa, sino en la velocidad para experimentar." },
+      { cat: "Academia", text: "Innovar ya no es lanzar grandes proyectos; es experimentar rápido y aprender antes que otros." },
+      { cat: "Academia", text: "Emprender ya no significa tener todas las respuestas, sino aprender del mercado en tiempo real." }
+    ]
+  },
+  {
+    id: 6,
+    title: "Inteligencia de Datos",
+    categories: ["Industria", "Academia"],
+    icon: <BarChart3 className="w-6 h-6" />,
+    description: "La democratización del análisis borra la intuición como guía.",
+    rules: [
+      { cat: "Industria", text: "Los reportes humanos ya no son el centro de las decisiones; hoy la IA genera insights en tiempo real." },
+      { cat: "Industria", text: "La intuición dejó de guiar las decisiones financieras; los modelos de datos ahora marcan el rumbo." },
+      { cat: "Industria", text: "El conocimiento dejó de ser escaso: la IA democratizó la capacidad de analizar y crear." },
+      { cat: "Academia", text: "Las marcas ya no controlan la narrativa del mercado: los algoritmos y las comunidades digitales lo hacen." }
+    ]
+  },
+  {
+    id: 7,
+    title: "Tecnología como Núcleo",
+    categories: ["TI", "Industria"],
+    icon: <Cpu className="w-6 h-6" />,
+    description: "La tecnología deja de ser soporte para convertirse en el corazón del negocio.",
+    rules: [
+      { cat: "Industria", text: "La tecnología borró la idea de que la estrategia tecnológica es soporte; ahora es el núcleo del negocio." },
+      { cat: "TI", text: "La innovación en salud ya no depende solo de laboratorios físicos, sino de plataformas de datos y algoritmos." }
+    ]
+  }
+];
+
+const App = () => {
+  const [selectedCluster, setSelectedCluster] = useState(null);
+  
+  // Create fixed non-overlapping positions using a safe grid-based logic
+  const nodePositions = useMemo(() => {
+    // Definimos una rejilla de 3x3 para asegurar que los 7 elementos no se toquen
+    const grid = [
+      { top: 20, left: 15 }, { top: 15, left: 50 }, { top: 20, left: 85 },
+      { top: 50, left: 25 }, { top: 45, left: 75 },
+      { top: 80, left: 15 }, { top: 85, left: 50 }
+    ];
+    
+    return clusters.map((_, i) => ({
+      top: `${grid[i].top}%`,
+      left: `${grid[i].left}%`,
+      delay: `${i * 0.5}s`,
+      duration: `${18 + (i % 3) * 4}s`,
+    }));
+  }, []);
+
+  const getCategoryColor = (cat) => {
+    if (cat === "TI") return "bg-blue-500";
+    if (cat === "Industria") return "bg-orange-500";
+    if (cat === "Academia") return "bg-green-500";
+    return "bg-gray-400";
+  };
+
+  return (
+    <div className="min-h-screen bg-white text-slate-900 font-sans overflow-hidden flex flex-col">
+      {/* Background Pattern */}
+      <div className="fixed inset-0 pointer-events-none opacity-[0.04]">
+        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(#000 1.5px, transparent 1.5px)', backgroundSize: '30px 30px' }}></div>
+      </div>
+
+      {/* Header */}
+      <header className="relative z-20 px-8 py-6 flex flex-col md:flex-row justify-between items-center bg-white/90 backdrop-blur-md border-b border-slate-100">
+        <div className="flex items-center gap-6">
+          <img src={LOGO_URL} alt="Tec de Monterrey" className="h-12 w-auto" />
+          <div className="h-10 w-px bg-slate-200 hidden md:block"></div>
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-slate-800 uppercase leading-none">
+              Muro de las Ideas Rotas
+            </h1>
+            <p className="text-[10px] text-slate-400 font-bold tracking-[0.2em] mt-1 italic">TRANSFORMACIÓN ESTRATÉGICA COHESIONADA</p>
+          </div>
+        </div>
+      </header>
+
+      {/* Dynamic Canvas */}
+      <main className="relative flex-grow flex items-center justify-center p-4">
+        <div className="relative w-full h-[65vh] max-w-7xl">
+          {clusters.map((cluster, idx) => (
+            <div
+              key={cluster.id}
+              onClick={() => setSelectedCluster(cluster)}
+              style={{
+                top: nodePositions[idx].top,
+                left: nodePositions[idx].left,
+                animation: `float-clean ${nodePositions[idx].duration} ease-in-out infinite alternate`,
+                animationDelay: nodePositions[idx].delay,
+              }}
+              className="absolute group cursor-pointer transition-all duration-300 z-10 -translate-x-1/2 -translate-y-1/2"
+            >
+              {/* Node Visual */}
+              <div className="relative flex flex-col items-center">
+                {/* Multi-color ring indicator */}
+                <div className="relative p-1 rounded-full bg-white shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-slate-100 group-hover:scale-110 group-hover:border-blue-200 group-hover:shadow-blue-100 transition-all duration-500">
+                  <div className="flex gap-0.5 absolute -top-1 -right-1">
+                    {cluster.categories.map(cat => (
+                      <div key={cat} className={`w-3.5 h-3.5 rounded-full border-2 border-white ${getCategoryColor(cat)} shadow-sm`}></div>
+                    ))}
+                  </div>
+                  <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 group-hover:text-blue-600 transition-colors">
+                    {cluster.icon}
+                  </div>
+                </div>
+                
+                {/* Label */}
+                <div className="mt-4 px-5 py-2 bg-white/95 backdrop-blur-sm border border-slate-100 rounded-full shadow-lg text-sm font-bold text-slate-700 whitespace-nowrap group-hover:bg-slate-900 group-hover:text-white transition-all transform group-hover:-translate-y-1">
+                  {cluster.title}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
+
+      {/* Legend - Fixed at Bottom */}
+      <footer className="relative z-20 bg-slate-50/80 border-t border-slate-100 px-8 py-7">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3 text-slate-400">
+            <Info size={18} />
+            <span className="text-[10px] font-black uppercase tracking-widest">Clasificación de Perfiles</span>
+          </div>
+          <div className="flex flex-wrap justify-center gap-12">
+            <div className="flex items-center gap-3">
+              <span className="w-12 h-2 bg-blue-500 rounded-full shadow-sm"></span>
+              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Arquitecto</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="w-12 h-2 bg-orange-500 rounded-full shadow-sm"></span>
+              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Visionario</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="w-12 h-2 bg-green-500 rounded-full shadow-sm"></span>
+              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Estratega</span>
+            </div>
+          </div>
+          <div className="text-[9px] text-slate-400 font-bold tracking-tighter">ESTRATEGIA DIGITAL 2024</div>
+        </div>
+      </footer>
+
+      {/* Modal / Overlay for details */}
+      {selectedCluster && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <button 
+              onClick={() => setSelectedCluster(null)}
+              className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all"
+            >
+              <X size={24} />
+            </button>
+
+            <div className="p-10">
+              <div className="flex items-center gap-5 mb-8">
+                <div className="p-4 bg-slate-50 rounded-2xl text-slate-800 shadow-sm border border-slate-100">
+                  {selectedCluster.icon}
+                </div>
+                <div>
+                  <div className="flex gap-1.5 mb-1.5">
+                    {selectedCluster.categories.map(cat => (
+                      <span key={cat} className={`text-[9px] font-black px-2.5 py-0.5 rounded text-white uppercase tracking-wider ${getCategoryColor(cat)}`}>
+                        {cat}
+                      </span>
+                    ))}
+                  </div>
+                  <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">{selectedCluster.title}</h3>
+                </div>
+              </div>
+
+              <p className="text-slate-500 mb-10 font-medium leading-relaxed italic border-l-4 border-slate-200 pl-5 text-lg">
+                "{selectedCluster.description}"
+              </p>
+
+              <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Reglas de Negocio Desafiadas</h4>
+                {selectedCluster.rules.map((rule, i) => (
+                  <div key={i} className="group p-5 bg-slate-50/50 hover:bg-white border border-slate-100 hover:border-slate-200 rounded-2xl transition-all shadow-sm">
+                    <p className="text-slate-800 font-semibold leading-relaxed">
+                      "{rule.text}"
+                    </p>
+                    <div className="mt-3 flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${getCategoryColor(rule.cat)}`}></div>
+                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{rule.cat}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-slate-50 p-6 flex justify-end border-t border-slate-100">
+              <button 
+                onClick={() => setSelectedCluster(null)}
+                className="px-10 py-2.5 bg-slate-900 text-white rounded-full font-bold text-sm hover:bg-slate-800 transition-all hover:shadow-lg active:scale-95"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Animation & Custom Styles */}
+      <style>{`
+        @keyframes float-clean {
+          0% { transform: translate(-50%, -50%) translate(0, 0); }
+          50% { transform: translate(-50%, -50%) translate(10px, -15px); }
+          100% { transform: translate(-50%, -50%) translate(-8px, 12px); }
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #e2e8f0;
+          border-radius: 10px;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default App;
